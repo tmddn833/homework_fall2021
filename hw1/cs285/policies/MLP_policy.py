@@ -55,7 +55,8 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
             self.mean_net = ptu.build_mlp(
                 input_size=self.ob_dim,
                 output_size=self.ac_dim,
-                n_layers=self.n_layers, size=self.size,
+                n_layers=self.n_layers,
+                size=self.size,
             )
             self.mean_net.to(ptu.device)
             self.logstd = nn.Parameter(
@@ -81,7 +82,9 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
             observation = obs[None]
 
         # TODO return the action that the policy prescribes
-        raise NotImplementedError
+        dist = self.forward(observation)
+        action = dist.sample()
+        return action.numpy()
 
     # update/train this policy
     def update(self, observations, actions, **kwargs):
@@ -92,8 +95,15 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
     # through it. For example, you can return a torch.FloatTensor. You can also
     # return more flexible objects, such as a
     # `torch.distributions.Distribution` object. It's up to you!
-    def forward(self, observation: torch.FloatTensor) -> Any:
-        raise NotImplementedError
+    # TODO
+    def forward(self, observation: torch.FloatTensor) -> distributions.Distribution:
+        x = torch.FloatTensor(observation)
+        if self.discrete:
+            x = self.logits_na(x)
+            return distributions.Categorical(logits=x)
+        else:
+            x = self.mean_net(x)
+            return distributions.Normal(loc=x, scale=torch.exp(self.logstd))
 
 
 #####################################################
@@ -109,7 +119,12 @@ class MLPPolicySL(MLPPolicy):
             adv_n=None, acs_labels_na=None, qvals=None
     ):
         # TODO: update the policy and return the loss
-        loss = TODO
+        self.optimizer.zero_grad()
+        actions = torch.tensor(actions, dtype=torch.int if self.discrete else torch.float)
+        action_dist = self.forward(observations)
+        loss = -action_dist.log_prob(actions).mean()
+        loss.backward()
+        self.optimizer.step()
         return {
             # You can add extra logging information here, but keep this line
             'Training Loss': ptu.to_numpy(loss),
