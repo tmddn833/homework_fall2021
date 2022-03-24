@@ -84,7 +84,7 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
         # TODO return the action that the policy prescribes
         dist = self.forward(observation)
         action = dist.sample()
-        return action.numpy()
+        return action.to('cpu').numpy()
 
     # update/train this policy
     def update(self, observations, actions, **kwargs):
@@ -98,6 +98,7 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
     # TODO
     def forward(self, observation: torch.FloatTensor) -> distributions.Distribution:
         x = torch.FloatTensor(observation)
+        x = x.to(ptu.device)
         if self.discrete:
             x = self.logits_na(x)
             return distributions.Categorical(logits=x)
@@ -120,7 +121,7 @@ class MLPPolicySL(MLPPolicy):
     ):
         # TODO: update the policy and return the loss
         self.optimizer.zero_grad()
-        actions = torch.tensor(actions, dtype=torch.int if self.discrete else torch.float)
+        actions = torch.tensor(actions, dtype=torch.int if self.discrete else torch.float64, device=ptu.device)
         action_dist = self.forward(observations)
         loss = -action_dist.log_prob(actions).mean()
         loss.backward()

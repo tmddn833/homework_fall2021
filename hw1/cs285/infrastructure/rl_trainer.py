@@ -13,8 +13,8 @@ from cs285.policies.MLP_policy import MLPPolicySL
 from cs285.policies.loaded_gaussian_policy import LoadedGaussianPolicy
 
 # how many rollouts to save as videos to tensorboard
-MAX_NVIDEO = 2
-MAX_VIDEO_LEN = 40  # we overwrite this in the code below
+MAX_NVIDEO = 1
+MAX_VIDEO_LEN = np.inf  # we overwrite this in the code below
 
 
 class RL_Trainer(object):
@@ -70,7 +70,7 @@ class RL_Trainer(object):
         ## AGENT
         #############
 
-        agent_class = self.params['agent_class']
+        agent_class = self.params['agent_class']  #BCagent
         self.agent = agent_class(self.env, self.params['agent_params'])
 
     def run_training_loop(self, n_iter, collect_policy: MLPPolicySL, eval_policy: MLPPolicySL,
