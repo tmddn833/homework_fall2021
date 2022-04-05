@@ -39,8 +39,11 @@ class ACAgent(BaseAgent):
 
         # for agent_params['num_actor_updates_per_agent_update'] steps,
         #     update the actor
+        for i in range(self.agent_params['num_critic_updates_per_agent_update']):
+            self.critic.update(ob_no, ac_na, next_ob_no, re_n, terminal_n)
 
         loss = OrderedDict()
+
         loss['Critic_Loss'] = TODO
         loss['Actor_Loss'] = TODO
 
