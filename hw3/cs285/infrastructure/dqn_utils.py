@@ -6,6 +6,7 @@ from collections import namedtuple
 import gym
 import numpy as np
 from torch import nn
+import tensorflow as tf
 import torch.optim as optim
 
 from cs285.infrastructure.atari_wrappers import wrap_deepmind

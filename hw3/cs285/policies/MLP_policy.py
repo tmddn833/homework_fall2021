@@ -50,8 +50,8 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
         else:
             self.logits_na = None
             self.mean_net = ptu.build_mlp(input_size=self.ob_dim,
-                                      output_size=self.ac_dim,
-                                      n_layers=self.n_layers, size=self.size)
+                                          output_size=self.ac_dim,
+                                          n_layers=self.n_layers, size=self.size)
             self.logstd = nn.Parameter(
                 torch.zeros(self.ac_dim, dtype=torch.float32, device=ptu.device)
             )
@@ -132,5 +132,14 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
 
 class MLPPolicyAC(MLPPolicy):
     def update(self, observations, actions, adv_n=None):
-        # TODO: update the policy and return the loss
+        # TODO Done: update the policy and return the loss
+        obs = ptu.from_numpy(observations)
+        act = ptu.from_numpy(actions)
+        adv_n = ptu.from_numpy(adv_n)
+
+        self.optimizer.zero_grad()
+        loss = -torch.sum(self.forward(obs).log_prob(act) * adv_n)
+        loss.backward()
+        self.optimizer.step()
+
         return loss.item()

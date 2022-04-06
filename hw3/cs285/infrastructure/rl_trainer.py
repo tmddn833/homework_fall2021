@@ -14,6 +14,7 @@ from cs285.infrastructure import utils
 from cs285.infrastructure.logger import Logger
 
 from cs285.agents.dqn_agent import DQNAgent
+from cs285.agents.ac_agent import ACAgent
 from cs285.infrastructure.dqn_utils import (
         get_wrapper_by_name,
         register_custom_envs,
@@ -220,7 +221,6 @@ class RL_Trainer(object):
 
     def train_agent(self):
         # TODO Done: get this from hw1 or hw2
-        print('\nTraining agent using sampled data from replay buffer...')
         all_logs = []
         for train_step in range(self.params['num_agent_train_steps_per_iter']):
             # sample some data from the data buffer

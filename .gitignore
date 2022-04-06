@@ -1,6 +1,7 @@
 *.pyc
 data/
 *.DS_Store
-*
 .idea
+venv/
+*.egg-info
 ~
