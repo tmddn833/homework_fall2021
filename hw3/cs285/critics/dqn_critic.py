@@ -76,7 +76,8 @@ class DQNCritic(BaseCritic):
             # target Q-network. Please review Lecture 8 for more details,
             # and page 4 of https://arxiv.org/pdf/1509.06461.pdf is also a good reference.
             ac_idx = torch.argmax(self.q_net(ob_no), dim=1).unsqueeze(1)
-            q_tp1 = torch.gather(qa_tp1_values, 1, ac_idx).squeeze()
+            q_tp1 = torch.gather(qa_tp1_values, 1, ac_idx).squeeze(1)
+
         else:
             q_tp1, _ = qa_tp1_values.max(dim=1)
 

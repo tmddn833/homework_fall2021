@@ -95,9 +95,11 @@ class MLPPolicy(BasePolicy, nn.Module, metaclass=abc.ABCMeta):
         observation = torch.FloatTensor(observation)
         observation = observation.to(ptu.device)
         # return the action that the policy prescribes
-        dist = self.forward(observation)
-        action = dist.sample()
-        return action.to('cpu').numpy()
+        with torch.no_grad():
+            dist = self.forward(observation)
+            action = dist.sample()
+        action = ptu.to_numpy(action)
+        return action
 
     # update/train this policy
     def update(self, observations, actions, **kwargs):
@@ -135,10 +137,11 @@ class MLPPolicyAC(MLPPolicy):
         # TODO Done: update the policy and return the loss
         obs = ptu.from_numpy(observations)
         act = ptu.from_numpy(actions)
-        adv_n = ptu.from_numpy(adv_n)
+        advantage = ptu.from_numpy(adv_n)
 
         self.optimizer.zero_grad()
-        loss = -torch.sum(self.forward(obs).log_prob(act) * adv_n)
+        act_dist = self.forward(obs)
+        loss = -torch.sum(act_dist.log_prob(act) * advantage)
         loss.backward()
         self.optimizer.step()
 
