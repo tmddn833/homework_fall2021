@@ -4,12 +4,13 @@ import pdb
 from cs285.infrastructure.dqn_utils import MemoryOptimizedReplayBuffer, PiecewiseSchedule
 from cs285.policies.argmax_policy import ArgMaxPolicy
 from cs285.critics.dqn_critic import DQNCritic
+import gym
 
 
 class DQNAgent(object):
     def __init__(self, env, agent_params):
 
-        self.env = env
+        self.env: gym.Env = env
         self.agent_params = agent_params
         self.batch_size = agent_params['batch_size']
         # import ipdb; ipdb.set_trace()
@@ -53,7 +54,7 @@ class DQNAgent(object):
         if self.replay_buffer.can_sample(self.batch_size):
             return self.replay_buffer.sample(batch_size)
         else:
-            return [],[],[],[],[]
+            return [], [], [], [], []
 
     def train(self, ob_no, ac_na, re_n, next_ob_no, terminal_n):
         raise NotImplementedError
